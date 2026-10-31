@@ -6,6 +6,29 @@
 
 ---
 
+## 0. Windows 版发布（先用这个）
+
+**最新：[`v0.6.2-win.1`](https://github.com/wjh-ux/lerobot-windows/releases/tag/v0.6.2-win.1)** — 对应 LeRobot 0.6.2（上游 commit `3f797de`）。上游 PR 合并之前，用这个版本。
+
+| 资产 | 什么情况下用 |
+| --- | --- |
+| [`lerobot-windows-v0.6.2-win.1.patch`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/lerobot-windows-v0.6.2-win.1.patch) | 已有 0.6.2 的 LeRobot 代码：`git -C <checkout> apply <patch>` |
+| [`lerobot-windows-kit-v0.6.2-win.1.zip`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/lerobot-windows-kit-v0.6.2-win.1.zip) | 不想 clone：解压即得脚本 + 文档 + 同一份补丁 |
+| [`SHA256SUMS.txt`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/SHA256SUMS.txt) | 校验下载完整性：`Get-FileHash -Algorithm SHA256 <file>` |
+
+```powershell
+# 解压 kit 后，三条命令
+.\scripts\setup-lerobot-windows.ps1 -Repo C:\path\to\lerobot
+C:\path\to\lerobot\.venv\Scripts\python.exe .\scripts\diagnose-windows.py --md my-report.md
+C:\path\to\lerobot\.venv\Scripts\python.exe .\scripts\verify-lerobot-windows.py
+```
+
+版本规则：**包版本跟随它所修补的 LeRobot 版本**，`-win.N` 表示同一上游版本的第 N 次包修订。所以 `v0.6.2-win.1` = 给 LeRobot 0.6.2 的第一个 Windows 包。每次修订的内容见 [`CHANGELOG.md`](https://github.com/wjh-ux/lerobot-windows/blob/main/CHANGELOG.md)。
+
+与上游的关系：同样六个改动已作为 draft PR 提到 `huggingface/lerobot`（#5177–#5182 + CI lane #5183）；本包的作用就是「合并前也能用」。
+
+---
+
 ## 1. 现在到底能跑到什么程度
 
 自检脚本 `verify-lerobot-windows.py` 的结果（11/11）：

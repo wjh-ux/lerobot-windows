@@ -22,6 +22,29 @@ With an arm and a camera plugged in, [docs/hardware-checklist.md](docs/hardware-
 lists what to run and which evidence belongs on which PR.
 
 
+## Windows release
+
+**Latest: [`v0.6.2-win.1`](https://github.com/wjh-ux/lerobot-windows/releases/tag/v0.6.2-win.1)** — the
+Windows support kit for LeRobot 0.6.2 (upstream commit `3f797de`). This is the version to use until the
+fixes land upstream.
+
+| Asset | Use it when |
+| --- | --- |
+| [`lerobot-windows-v0.6.2-win.1.patch`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/lerobot-windows-v0.6.2-win.1.patch) | you already have a LeRobot checkout at 0.6.2: `git -C <checkout> apply <patch>` |
+| [`lerobot-windows-kit-v0.6.2-win.1.zip`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/lerobot-windows-kit-v0.6.2-win.1.zip) | you want the scripts and docs without cloning: unzip, then run `scripts\setup-lerobot-windows.ps1 -Repo <checkout>` |
+| [`SHA256SUMS.txt`](https://github.com/wjh-ux/lerobot-windows/releases/download/v0.6.2-win.1/SHA256SUMS.txt) | verify what you downloaded (`Get-FileHash -Algorithm SHA256 <file>`) |
+
+```powershell
+# from the unzipped kit
+.\scripts\setup-lerobot-windows.ps1 -Repo C:\path\to\lerobot
+C:\path\to\lerobot\.venv\Scripts\python.exe .\scripts\diagnose-windows.py --md my-report.md
+C:\path\to\lerobot\.venv\Scripts\python.exe .\scripts\verify-lerobot-windows.py
+```
+
+Versioning: the kit version tracks the LeRobot version it patches, with a `-win.N` suffix for kit
+revisions of the same upstream release. `v0.6.2-win.1` = the first Windows kit for LeRobot 0.6.2.
+See [CHANGELOG.md](CHANGELOG.md) for what each kit revision contains.
+
 ## Quick start
 
 ```powershell
@@ -186,6 +209,7 @@ scripts/diagnose-windows.py     # six-section support diagnosis, no hardware nee
 docs/baseline-windows11.md      # reference report from a healthy Windows 11 box
 docs/hardware-checklist.md      # what to run once an arm + camera are attached, and what to report
 docs/host-notes.md              # host quirks (Schannel, MSI, tempfile ACLs, Bluetooth COM, no GPU)
+CHANGELOG.md                    # what each kit release contains
 README.md                       # this file
 README.zh-CN.md                 # 中文说明（含逐文件改动原因与排查记录）
 ```
