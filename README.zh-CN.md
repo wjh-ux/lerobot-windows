@@ -299,5 +299,16 @@ Windows 专属问题（`signal.SIGHUP`、torchcodec 加载、4 通道帧）一�
 | `verify-lerobot-windows.py` | 11 项无硬件自检 + 数据集/视频回环 |
 | `LeRobot-Windows适配说明.md` | 本文 |
 
+已开源发布：
+
+* 独立仓库（英文 README + 本文、脚本、合并补丁）：<https://github.com/wjh-ux/lerobot-windows>
+* 上游 PR（均为草稿，人工复核后点 “Ready for review” 再邀请审阅）：
+  * [#5177](https://github.com/huggingface/lerobot/pull/5177) `fix(scripts): make lerobot-find-port reliable on Windows`
+  * [#5178](https://github.com/huggingface/lerobot/pull/5178) `fix(cameras): enumerate cameras on Windows and accept 4-channel frames`
+  * [#5179](https://github.com/huggingface/lerobot/pull/5179) `fix(datasets): find FFmpeg's shared DLLs before importing torchcodec on Windows`
+  * [#5180](https://github.com/huggingface/lerobot/pull/5180) `feat(teleoperators): read recording controls from a Windows console`
+  * [#5181](https://github.com/huggingface/lerobot/pull/5181) `fix(rl): surface replay-buffer prefetch failures instead of hanging`
+  * [#5182](https://github.com/huggingface/lerobot/pull/5182) `test: make the suite collectible and runnable on Windows`
+
 代码改动都在 `C:\Users\Administrator\Documents\deepseek-harness\default-workspace\lerobot-win`
 （官方主线 clone，已在 `.venv` 里装好并验证），补丁基于 `HEAD=3f797de`。
