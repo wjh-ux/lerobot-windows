@@ -255,7 +255,37 @@ LeRobot 在这台机器上主要跑三件事，瓶颈完全不同：
 
 ---
 
-## 7. 已知限制 / 没做的事
+## 7. Windows 支持现状（实测矩阵）
+
+把"能不能用"拆开看，而不是一个笼统的"支持/不支持"。这张表是这台机器上的实测结论，也是 `scripts/diagnose-windows.py` 每次会重新测一遍的东西。
+
+| 能力 | 状态 | 说明 |
+| --- | --- | --- |
+| 安装（CPU / CUDA torch + extras） | ✅ 已验证 | 一键脚本，不需要 MSVC、不需要管理员 |
+| `lerobot-info` / `find-port` / `find-cameras` / `calibrate` / `record` / `replay` / `dataset-viz` | ✅ 已验证（无硬件） | 机械臂/相机链路走的是"未接入"分支，命令与参数解析全通 |
+| 数据集写入 + 读回（多进程 image writer） | ✅ 已验证 | 4 帧往返，图像 `(3,48,64)` |
+| 视频编解码 | ✅ 已验证 | 软件编码 libsvtav1；解码 torchcodec（需 FFmpeg **共享** DLL）或 PyAV 回退 |
+| 中文 / 空格 / 长路径 | ✅ 已验证 | 超过 260 字符需 `LongPathsEnabled`，否则数据目录要浅 |
+| UVC 相机（OpenCV） | ⚠️ 可用但受限 | `backend: dshow` + `fourcc: MJPG` 才稳 30 fps；**没有曝光/增益控制**（Windows 上 OpenCV 不暴露 UVC 控制面），光照变化会毁数据 |
+| Intel RealSense | ⚠️ 有 wheel，未验证 | `pip install 'lerobot[intelrealsense]'`，本机无设备 |
+| 训练 | ⚠️ 仅 CPU | 本机无 GPU（`cuda=False`）；换机器用 `-Torch cuda128` |
+| 硬件编码（NVENC/QSV/AMF） | ❌ 未接入 | LeRobot 用 libsvtav1 软编；接硬件编码会牺牲跨平台可复现性，应作为 opt-in |
+| 无人值守 / 服务化（无桌面会话） | ❌ 不支持 | 全局键盘钩子与 msvcrt 兜底都依赖交互桌面会话 |
+| `torch.compile` 加速 | ❌ 需要 MSVC | 没装 VS Build Tools 时 RL buffer 自动走 eager（已修，但拿不到加速收益） |
+
+### 怎么知道自己这台机器行不行
+
+```powershell
+.venv\Scripts\python.exe scripts\diagnose-windows.py --md my-report.md
+```
+
+六个分区、约 30 项检查，全部不需要硬件：环境（构建号/代码页/长路径/临时目录/线程数）、路径（中文+空格目录下的数据集与视频往返）、时序（睡眠量化、30/60 Hz 的 `precise_sleep` 抖动）、进程（spawn 成本、子进程 import torch/PyAV 的成本）、视频（ffmpeg CLI、共享 DLL、torchcodec 后端、编解码往返）、串口（USB/蓝牙/虚拟口分类 + 能否打开）、相机（枚举 + 后端，`--camera-probe` 再加一张"真正出帧的模式"矩阵）。
+
+每个 `WARN`/`FAIL` 都带修复建议；`--md` 出 Markdown 报告、`--json` 出原始结果，提 issue 时直接贴。
+
+[`docs/baseline-windows11.md`](https://github.com/wjh-ux/lerobot-windows/blob/main/docs/baseline-windows11.md) 是这台机器（无硬件）的基线报告，可用来对照。
+
+## 8. 已知限制 / 没做的事
 
 1. **没有 NVIDIA 显卡**：`cuda=False`，只能 CPU 训练/推理。要训练就换机器或接 eGPU。
 2. **没接真实机械臂与相机**：本机只有两个蓝牙 COM 口、无相机。串口/相机实机链路需要插上设备后再跑一次
@@ -271,7 +301,7 @@ LeRobot 在这台机器上主要跑三件事，瓶颈完全不同：
 
 ---
 
-## 8. 建议给上游补一个 Windows job
+## 9. 建议给上游补一个 Windows job
 
 上游 CI 目前 **只有 ubuntu-latest**（`.github/workflows/fast_tests.yml:67` 等），所以上面这些
 Windows 专属问题（`signal.SIGHUP`、torchcodec 加载、4 通道帧）一直没人撞上。建议加：
@@ -290,7 +320,7 @@ Windows 专属问题（`signal.SIGHUP`、torchcodec 加载、4 通道帧）一�
 
 ---
 
-## 9. 交付物
+## 10. 交付物
 
 | 文件 | 说明 |
 | --- | --- |
