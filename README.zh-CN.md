@@ -309,6 +309,11 @@ Windows 专属问题（`signal.SIGHUP`、torchcodec 加载、4 通道帧）一�
   * [#5180](https://github.com/huggingface/lerobot/pull/5180) `feat(teleoperators): read recording controls from a Windows console`
   * [#5181](https://github.com/huggingface/lerobot/pull/5181) `fix(rl): surface replay-buffer prefetch failures instead of hanging`
   * [#5182](https://github.com/huggingface/lerobot/pull/5182) `test: make the suite collectible and runnable on Windows`
+  * [#5183](https://github.com/huggingface/lerobot/pull/5183) `ci: run the utils and camera suites on windows-latest`（栈在 #5178 + #5182 之上，两者合并后会自动缩减为单个 workflow 文件）
+
+实机接线后的验证清单（跑什么、每个 PR 贴什么证据）见仓库里的
+`docs/hardware-checklist.md`；本机的环境坑（Schannel、MSI、`mkdtemp`、蓝牙 COM、无 GPU）整理在
+`docs/host-notes.md`。
 
 代码改动都在 `C:\Users\Administrator\Documents\deepseek-harness\default-workspace\lerobot-win`
 （官方主线 clone，已在 `.venv` 里装好并验证），补丁基于 `HEAD=3f797de`。
