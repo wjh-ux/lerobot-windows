@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# artefacts produced by the scripts
+_verify_dataset/
+_verify_cache/
+_verify_frames/
+*video_probe*/
+report.md
+diagnose-report*.json

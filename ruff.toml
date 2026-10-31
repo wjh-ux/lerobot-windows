@@ -1,0 +1,16 @@
+# Lint configuration for the scripts in this repository.
+# LeRobot's own configuration (in the lerobot checkout) enables pydocstyle, which suits a
+# library's public API but not a collection of diagnostic scripts; the rules below keep the
+# parts that catch real mistakes.
+line-length = 110
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "T20"]
+ignore = ["E501", "T201"]
+
+[lint.isort]
+known-first-party = ["lerobot"]
+
+[format]
+quote-style = "double"
+line-ending = "lf"

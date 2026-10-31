@@ -37,6 +37,41 @@ lists what to run and which evidence belongs on which PR.
 LeRobot in editable mode with the extras the SO-101 workflow needs, and points `LEROBOT_FFMPEG_DLL_DIR`
 at an FFmpeg *shared* build if one is present.
 
+## Is this machine supported? Run the diagnosis
+
+```powershell
+.venv\Scripts\python.exe scripts\diagnose-windows.py --md my-report.md
+```
+
+Six sections, ~30 checks, no hardware needed: environment (build, code page, long paths, temp dirs),
+paths (Chinese/spaced directories through dataset + video round trips), timing (sleep quantisation and
+`precise_sleep` jitter at 30/60 Hz), processes (spawn cost with and without torch), video stack
+(ffmpeg CLI, FFmpeg shared DLLs, torchcodec backend, encode/decode), serial (USB vs Bluetooth vs
+virtual, and whether each port can be opened), cameras (enumeration, backend, and with `--camera-probe`
+a matrix of the modes that actually deliver frames). Every `WARN`/`FAIL` prints the fix.
+
+[`docs/baseline-windows11.md`](docs/baseline-windows11.md) is the reference report from a healthy
+Windows 11 box with no hardware attached — compare yours against it.
+
+## Windows support status
+
+What is verified on this platform, and what is deliberately out of scope:
+
+| Area | Status | Notes |
+| --- | --- | --- |
+| Install (CPU / CUDA torch, extras) | ✅ verified | `scripts/setup-lerobot-windows.ps1`, no MSVC needed |
+| `lerobot-info`, `find-port`, `find-cameras`, `calibrate`, `record`, `replay`, `dataset-viz` | ✅ verified (no hardware) | arm/camera paths exercised through their "nothing attached" branches |
+| Dataset write + read, multiprocessing image writer | ✅ verified | 4 frames round trip, video via torchcodec |
+| Video encode/decode | ✅ verified | libsvtav1 software encoding; torchcodec with FFmpeg **shared** DLLs, PyAV otherwise |
+| Chinese / spaced / long paths | ✅ verified | `LongPathsEnabled` required above 260 chars |
+| UVC cameras via OpenCV | ⚠️ works, limited | `backend: dshow`, `fourcc: MJPG` for stable 30 fps; **no exposure/gain control** (OpenCV exposes no UVC control surface on Windows) |
+| Intel RealSense | ⚠️ wheel exists | `pip install 'lerobot[intelrealsense]'`; untested here (no device) |
+| Training | ⚠️ CPU only here | no GPU on the reference machine; use `-Torch cuda128` on an NVIDIA box |
+| Hardware video encoding (NVENC/QSV/AMF) | ❌ not used | LeRobot encodes with libsvtav1; adding hardware encoders would break cross-platform reproducibility |
+| Unattended / Windows service mode | ❌ not supported | the global keyboard hook and the console fallback both need an interactive desktop session |
+| `torch.compile` acceleration | ❌ needs MSVC | without VS Build Tools the RL buffer keeps the eager path instead of failing |
+
+
 ## What breaks, and what is fixed here
 
 The patch in [`patches/`](patches) is the same content as the six PRs, applied to one tree.
@@ -147,6 +182,8 @@ Pitfalls worth the two minutes:
 patches/lerobot-windows.patch   # combined diff against huggingface/lerobot @ 3f797de (v0.6.2)
 scripts/setup-lerobot-windows.ps1
 scripts/verify-lerobot-windows.py
+scripts/diagnose-windows.py     # six-section support diagnosis, no hardware needed
+docs/baseline-windows11.md      # reference report from a healthy Windows 11 box
 docs/hardware-checklist.md      # what to run once an arm + camera are attached, and what to report
 docs/host-notes.md              # host quirks (Schannel, MSI, tempfile ACLs, Bluetooth COM, no GPU)
 README.md                       # this file
