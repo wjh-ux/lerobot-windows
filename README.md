@@ -13,6 +13,14 @@ Upstream PRs opened from this work (draft until the human contributor reviews th
 | [#5180](https://github.com/huggingface/lerobot/pull/5180) | Recording controls from a Windows console (`msvcrt`) |
 | [#5181](https://github.com/huggingface/lerobot/pull/5181) | Replay buffer: no more silent deadlock on failed prefetch |
 | [#5182](https://github.com/huggingface/lerobot/pull/5182) | Test suite: collectible and runnable on Windows |
+| [#5183](https://github.com/huggingface/lerobot/pull/5183) | CI: a `windows-latest` lane for `tests/utils` + `tests/cameras` |
+
+They are drafts on purpose: this project's `AI_POLICY.md` asks a human to review AI-assisted
+work before it invites maintainer review. Flipping one to *Ready for review* is the last step.
+
+With an arm and a camera plugged in, [docs/hardware-checklist.md](docs/hardware-checklist.md)
+lists what to run and which evidence belongs on which PR.
+
 
 ## Quick start
 
@@ -97,17 +105,13 @@ Windows 11 (10.0.26300), 6-core CPU, no NVIDIA GPU, Python 3.12.16, torch 2.11.0
 | Dataset write + read (multiprocess image writer) | 4 frames, video decode via torchcodec |
 | `lerobot-info` | torch 2.11.0+cpu, Torchcodec 0.11.1 loaded |
 
-## Environment notes from the machine this was built on
+## Environment notes
 
-These are host quirks, not LeRobot problems, but they cost hours — worth knowing:
-
-* **Broken Schannel**: `curl`, `Invoke-WebRequest` and `git` (default backend) fail with
-  `SEC_E_NO_CREDENTIALS (0x8009030e)`. Workable: Python's OpenSSL stack, and `git -c http.sslBackend=openssl`.
-* **MSI installers refused** (`exit 5` writing `C:\Windows\Installer`): install Python through `uv` into a
-  user directory instead.
-* **`tempfile.mkdtemp` directories unwritable** under a restricted (sandboxed) token: mode `0o700` leaves a
-  DACL that only names the user SID. A `sitecustomize.py` that creates temp dirs with `0o777` works around it;
-  a normal Windows account does not need this.
+Host quirks that cost hours on the machine this was developed on — broken Schannel, refused MSI
+installers, unwritable `tempfile.mkdtemp` directories under a restricted token, Bluetooth COM
+ports masquerading as a robot, no GPU — are collected in
+[docs/host-notes.md](docs/host-notes.md), with the workaround for each. None of them are LeRobot
+bugs, and a normal Windows 11 account hits at most one.
 
 ## Hardware walkthrough (SO-101)
 
@@ -143,6 +147,8 @@ Pitfalls worth the two minutes:
 patches/lerobot-windows.patch   # combined diff against huggingface/lerobot @ 3f797de (v0.6.2)
 scripts/setup-lerobot-windows.ps1
 scripts/verify-lerobot-windows.py
+docs/hardware-checklist.md      # what to run once an arm + camera are attached, and what to report
+docs/host-notes.md              # host quirks (Schannel, MSI, tempfile ACLs, Bluetooth COM, no GPU)
 README.md                       # this file
 README.zh-CN.md                 # 中文说明（含逐文件改动原因与排查记录）
 ```
